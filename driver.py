@@ -7,7 +7,7 @@ URLS = [sys.argv[1]] * 200
 # Retrieve a single page and report the URL and contents
 def load_url(url, timeout, token):
     req = urllib.request.Request(url)
-    req.add_header(f"Authorization", "Bearer {token}")
+    req.add_header("Authorization", f"Bearer {token}")
     with urllib.request.urlopen(req, timeout=timeout) as conn:
         return conn.read()
 
