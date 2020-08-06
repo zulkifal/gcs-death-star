@@ -22,13 +22,13 @@ def worker(bucket_name, debug):
                 f"tid: {threading.get_ident()} created gs://{bucket_name}/{object_id}"
             )
     except:
+        print("Exception encountered, upload failed.")
         pass
 
 
 def handle(request):
     t_list = []
     debug = False
-    request_json = request.get_json()
     if request.args and "bucket" in request.args:
         bucket = request.args.get("bucket")
     else:
@@ -40,7 +40,7 @@ def handle(request):
         n_threads = 1000
     if request.args and "debug" in request.args:
         debug = True
-    for i in range(n_threads):
+    for _ in range(n_threads):
         t_list.append(threading.Thread(target=worker, args=(bucket, debug)))
 
     for t in t_list:
@@ -49,4 +49,4 @@ def handle(request):
     for t in t_list:
         t.join()
 
-    return f"objects created"
+    return f"Done."
