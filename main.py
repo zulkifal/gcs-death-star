@@ -7,12 +7,13 @@ client = storage.Client()
 
 def worker(bucket_name, debug):
     try:
-        bucket = client.get_bucket(bucket_name)
+        # bucket = client.get_bucket(bucket_name)
+        bucket = storage.Bucket(client, bucket_name)
     except:
         return None
     object_id = f"object.txt-{time.time()}-{threading.get_ident()}"
     # blob = bucket.blob(object_id)
-    blob = storage.Blob(object_id, bucket_name)
+    blob = storage.Blob(object_id, bucket)
     # try to upload, fail silently
     try:
         blob.upload_from_string(
