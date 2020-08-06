@@ -34,19 +34,20 @@ def handle(request):
     if request.args and "bucket" in request.args:
         bucket = request.args.get("bucket")
     else:
-        bucket = "py-izul-bucket"
+        return f"Usage: http[s]://URL?bucket=BUCKET_NAME&threads=NUM_THREADS&debug=BOOL"
 
     if request.args and "threads" in request.args:
         n_threads = int(request.args.get("threads"))
     else:
         n_threads = 1000
+    
     if request.args and "debug" in request.args:
         debug = True
+    
     for _ in range(n_threads):
-        t_list.append(threading.Thread(target=worker, args=(bucket, debug)))
-
-    for t in t_list:
+        t = threading.Thread(target=worker, args=(bucket, debug))
         t.start()
+        t_list.append(t)
 
     for t in t_list:
         t.join()
