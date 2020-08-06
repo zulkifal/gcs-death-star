@@ -11,7 +11,8 @@ def worker(bucket_name, debug):
     except:
         return None
     object_id = f"object.txt-{time.time()}-{threading.get_ident()}"
-    blob = bucket.blob(object_id)
+    # blob = bucket.blob(object_id)
+    blob = storage.Blob(object_id, bucket_name)
     # try to upload, fail silently
     try:
         blob.upload_from_string(
