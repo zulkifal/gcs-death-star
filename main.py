@@ -30,7 +30,7 @@ def worker(bucket_name, debug):
             pass
 
 
-def handle(request):
+def handler(request):
     t_list = []
     debug = False
     if request.args and "bucket" in request.args:
