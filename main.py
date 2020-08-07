@@ -11,21 +11,23 @@ def worker(bucket_name, debug):
         bucket = storage.Bucket(client, bucket_name)
     except:
         return None
-    object_id = f"object.txt-{time.time()}-{threading.get_ident()}"
-    # blob = bucket.blob(object_id)
-    blob = storage.Blob(object_id, bucket)
-    # try to upload, fail silently
-    try:
-        blob.upload_from_string(
-            f"New contents-{time.time()}-{threading.get_ident()}"
-        )
-        if debug == True:
-            print(
-                f"tid: {threading.get_ident()} created gs://{bucket_name}/{object_id}"
+    # each thread trying to upload 10 objects
+    for _ in range(10):
+        object_id = f"object.txt-{time.time()}-{threading.get_ident()}"
+        # blob = bucket.blob(object_id)
+        blob = storage.Blob(object_id, bucket)
+        # try to upload, fail silently
+        try:
+            blob.upload_from_string(
+                f"New contents-{time.time()}-{threading.get_ident()}"
             )
-    except:
-        print("Exception encountered, upload failed.")
-        pass
+            if debug == True:
+                print(
+                    f"tid: {threading.get_ident()} created gs://{bucket_name}/{object_id}"
+                )
+        except:
+            print("Exception encountered, upload failed.")
+            pass
 
 
 def handle(request):
