@@ -1,25 +1,31 @@
-import concurrent.futures
+import threading
 import urllib.request
-import sys
+import argparse
 
-URLS = [sys.argv[1]] * 200
+parser = argparse.ArgumentParser(description='GCS death star driver.')
+parser.add_argument('--url', required=True, help="http[s]://URL?bucket=BUCKET_NAME&threads=NUM_THREADS&debug=BOOL")
+parser.add_argument('--token', help="Provide identity token $(gcloud auth print-identity-token)")
 
-# Retrieve a single page and report the URL and contents
-def load_url(url, timeout, token):
+args = parser.parse_args()
+
+results = []
+def load_url(url, timeout):
     req = urllib.request.Request(url)
-    req.add_header("Authorization", f"Bearer {token}")
+    if args.token:
+        req.add_header("Authorization", f"Bearer {args.token}")
     with urllib.request.urlopen(req, timeout=timeout) as conn:
-        return conn.read()
-
-# We can use a with statement to ensure threads are cleaned up promptly
-with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:
-    # Start the load operations and mark each future with its URL
-    future_to_url = {executor.submit(load_url, url, 60, sys.argv[2]): url for url in URLS}
-    for future in concurrent.futures.as_completed(future_to_url):
-        url = future_to_url[future]
         try:
-            data = future.result()
-        except Exception as exc:
-            print('%r generated an exception: %s' % (url, exc))
-        else:
-            print('%r page is %d bytes' % (url, len(data)))
+            print(conn.read())
+        except:
+            print("Exception encountered.")
+def main():
+    t_list = []
+    for _ in range(1000):
+        t = threading.Thread(target=load_url, args=(args.url, 60))
+        t_list.append(t)
+        t.start()
+    for t in t_list:
+        t.join()
+
+if __name__ == "__main__":
+    main()
