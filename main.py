@@ -6,11 +6,7 @@ client = storage.Client()
 
 
 def worker(bucket_name, debug):
-    try:
-        # bucket = client.get_bucket(bucket_name)
-        bucket = storage.Bucket(client, bucket_name)
-    except:
-        return None
+    bucket = storage.Bucket(client, bucket_name)
     # each thread trying to upload 10 objects
     for _ in range(10):
         object_id = f"object.txt-{time.time()}-{threading.get_ident()}"
@@ -18,16 +14,13 @@ def worker(bucket_name, debug):
         blob = storage.Blob(object_id, bucket)
         # try to upload, fail silently
         try:
-            blob.upload_from_string(
-                f"New contents-{time.time()}-{threading.get_ident()}"
-            )
+            blob.upload_from_string(object_id)
             if debug == True:
                 print(
                     f"tid: {threading.get_ident()} created gs://{bucket_name}/{object_id}"
                 )
         except:
             print("Exception encountered, upload failed.")
-            pass
 
 
 def handler(request):
@@ -36,7 +29,8 @@ def handler(request):
     if request.args and "bucket" in request.args:
         bucket = request.args.get("bucket")
     else:
-        return f"Usage: http[s]://URL?bucket=BUCKET_NAME&threads=NUM_THREADS&debug=BOOL"
+        #return f"Usage: http[s]://URL?bucket=BUCKET_NAME&threads=NUM_THREADS&debug=BOOL"
+        return f"Usage: http[s]://URL?bucket=BUCKET_NAME"
 
     if request.args and "threads" in request.args:
         n_threads = int(request.args.get("threads"))
